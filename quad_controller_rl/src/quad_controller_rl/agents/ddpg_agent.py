@@ -8,7 +8,8 @@ from quad_controller_rl.agents.base_agent import BaseAgent
 
 from quad_controller_rl.agents.actor import Actor
 from quad_controller_rl.agents.critic import Critic
-from quad_controller_rl.agents.memory import Memory
+# from quad_controller_rl.agents.memory import Memory
+from quad_controller_rl.agents.replay_buffer import ReplayBuffer
 from quad_controller_rl.agents.ou_noise import OUNoise
 
 
@@ -56,7 +57,7 @@ class DDPG(BaseAgent):
         # Replay memory
         self.buffer_size = 100000
         self.batch_size = 64
-        self.memory = Memory(self.buffer_size)
+        self.memory = ReplayBuffer(self.buffer_size)
 
         # Algorithm parameters
         self.gamma = 0.99  # discount factor
