@@ -134,7 +134,7 @@ class DDPG(BaseAgent):
         self.soft_update(self.critic_local.model, self.critic_target.model)
         self.soft_update(self.actor_local.model, self.actor_target.model)
 
-        # print("DDPG.learn(): t = {:4d}, score = {:7.3f} (best = {:7.3f}), noise_scale = {}".format(self.count, score, self.best_score, self.noise_scale))  # [debug]
+        print("DDPG.learn(): t = {:4d}, score = {:7.3f} (best = {:7.3f}), noise_scale = {}".format(self.count, score, self.best_score, self.noise_scale))  # [debug]
         # print(self.w)  # [debug: policy parameters]
 
     def soft_update(self, local_model, target_model):
