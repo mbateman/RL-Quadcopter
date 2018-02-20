@@ -1,11 +1,11 @@
-"""Hover task."""
+"""Landing task."""
 
 import numpy as np
 from gym import spaces
 from geometry_msgs.msg import Vector3, Point, Quaternion, Pose, Twist, Wrench
 from quad_controller_rl.tasks.base_task import BaseTask
 
-class Hover(BaseTask):
+class Landing(BaseTask):
     """Lift off the ground, reach a target height and maintain a position"""
 
     def __init__(self):
@@ -14,7 +14,7 @@ class Hover(BaseTask):
         self.observation_space = spaces.Box(
             np.array([- cube_size / 2, - cube_size / 2,       0.0, -1.0, -1.0, -1.0, -1.0]),
             np.array([  cube_size / 2,   cube_size / 2, cube_size,  1.0,  1.0,  1.0,  1.0]))
-        print("Hover(): observation_space = {}".format(self.observation_space))  # [debug]
+        #print("Landing(): observation_space = {}".format(self.observation_space))  # [debug]
 
         # Action space: <force_x, .._y, .._z, torque_x, .._y, .._z>
         max_force = 25.0
@@ -22,7 +22,7 @@ class Hover(BaseTask):
         self.action_space = spaces.Box(
             np.array([-max_force, -max_force, -max_force, -max_torque, -max_torque, -max_torque]),
             np.array([ max_force,  max_force,  max_force,  max_torque,  max_torque,  max_torque]))
-        print("Hover(): action_space = {}".format(self.action_space))  # [debug]
+        print("Landing(): action_space = {}".format(self.action_space))  # [debug]
 
         # Task-specific parameters
         self.max_duration = 5.0  # secs
@@ -40,20 +40,20 @@ class Hover(BaseTask):
         self.last_timestamp = None
         self.last_position = None
         p = self.target_position + np.random.normal(0.5, 0.1, size=3)  # slight random position around the target
-        # return Pose(
-        #     position=Point(*p),
-        #     orientation=Quaternion(0.0, 0.0, 0.0, 1.0),
-        # ), Twist(
-        #     linear=Vector3(0.0, 0.0, 0.0),
-        #     angular=Vector3(0.0, 0.0, 0.0)
-        # )
         return Pose(
-                position=Point(0.0, 0.0, np.random.normal(0.5, 0.1)),  # drop off from a slight random height
-                orientation=Quaternion(0.0, 0.0, 0.0, 0.0),
-            ), Twist(
-                linear=Vector3(0.0, 0.0, 0.0),
-                angular=Vector3(0.0, 0.0, 0.0)
-            )
+            position=Point(*p),
+            orientation=Quaternion(0.0, 0.0, 0.0, 1.0),
+        ), Twist(
+            linear=Vector3(0.0, 0.0, 0.0),
+            angular=Vector3(0.0, 0.0, 0.0)
+        )
+        # return Pose(
+        #         position=Point(0.0, 0.0, np.random.normal(0.5, 0.1)),  # drop off from a slight random height
+        #         orientation=Quaternion(0.0, 0.0, 0.0, 0.0),
+        #     ), Twist(
+        #         linear=Vector3(0.0, 0.0, 0.0),
+        #         angular=Vector3(0.0, 0.0, 0.0)
+        #     )
 
     def update(self, timestamp, pose, angular_velocity, linear_acceleration):
         # Prepare state vector (pose only; ignore angular_velocity, linear_acceleration)
