@@ -1,4 +1,3 @@
-"""Deep Deterministec Policy Gradients (DDPG) reinforcement learning agent."""
 from keras import layers, models, optimizers
 from keras import backend as K
 from keras.regularizers import l2

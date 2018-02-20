@@ -1,4 +1,4 @@
-"""Policy search agent."""
+"""Deep Deterministec Policy Gradients (DDPG) reinforcement learning agent."""
 import os
 import pandas as pd
 import numpy as np
@@ -14,6 +14,7 @@ from quad_controller_rl.agents.ou_noise import OUNoise
 
 
 class DDPG(BaseAgent):
+
     def __init__(self, task):
         # Task (environment) information
         self.task = task
@@ -85,12 +86,13 @@ class DDPG(BaseAgent):
             self.total_reward += reward
             self.count += 1
 
+        # Learn, if enough samples are available in memory
+        if len(self.memory) > self.batch_size:
+            experiences = self.memory.sample(self.batch_size)
+            self.learn(experiences)
+
         # Learn, if at end of episode
         if done:
-            # Learn, if enough samples are available in memory
-            if len(self.memory) > self.batch_size:
-                experiences = self.memory.sample(self.batch_size)
-                self.learn(experiences)
             # Write episode stats
             self.write_stats([self.episode_num, self.total_reward])
             self.episode_num += 1

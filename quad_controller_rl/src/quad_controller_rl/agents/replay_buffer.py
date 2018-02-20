@@ -5,7 +5,7 @@ import random
 from collections import namedtuple
 
 Experience = namedtuple("Experience",
-                        field_names=["state", "action", "reward", "next_state", "done"])
+    field_names=["state", "action", "reward", "next_state", "done"])
 
 
 class ReplayBuffer:
