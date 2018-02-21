@@ -25,14 +25,14 @@ class Hover(BaseTask):
         # print("Hover(): action_space = {}".format(self.action_space))  # [debug]
 
         # Task-specific parameters
-        self.max_duration = 5.0  # secs
+        self.max_duration = 1.0  # secs
         self.max_error_position = 8.0  # distance units
         self.target_position = np.array([0.0, 0.0, 20.0])  # target position to hover at
         self.weight_position = 0.5
-        self.target_orientation = np.array([0.0, 0.0, 0.0, 1.0])  # target orientation quaternion (upright)
+        self.target_orientation = np.array([0.0, 0.0, 0.0, 0.0])  # target orientation quaternion (upright)
         self.weight_orientation = 0.3
         self.target_velocity = np.array([0.0, 0.0, 0.0])  # target velocity (ideally should stay in place)
-        self.weight_velocity = 0.2
+        self.weight_velocity = 0.1
         self.target_z = 20.0  # target height (z position) to reach for successful takeoff
 
     def reset(self):
@@ -67,6 +67,7 @@ class Hover(BaseTask):
         else:
             velocity = (position - self.last_position) / max(timestamp - self.last_timestamp, 1e-03)  # prevent divide by zero
 
+        print("Hover(): velocity = {}".format(velocity))  # [debug]
         state = np.concatenate([position, orientation, velocity])  # combined state vector
         self.last_timestamp = timestamp
         self.last_position = position
