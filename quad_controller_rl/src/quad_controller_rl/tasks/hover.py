@@ -30,6 +30,8 @@ class Hover(BaseTask):
 
     def reset(self):
         # Nothing to reset; just return initial condition
+        self.last_timestamp = None
+        self.last_position = None
         return Pose(
                 position=Point(0.0, 0.0, np.random.normal(0.5, 0.1)),  # drop off from a slight random height
                 orientation=Quaternion(0.0, 0.0, 0.0, 0.0),
@@ -40,9 +42,19 @@ class Hover(BaseTask):
 
     def update(self, timestamp, pose, angular_velocity, linear_acceleration):
         # Prepare state vector (pose only; ignore angular_velocity, linear_acceleration)
-        state = np.array([
-                pose.position.x, pose.position.y, pose.position.z,
-                pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w])
+        # state = np.array([
+        #         pose.position.x, pose.position.y, pose.position.z,
+        #         pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w])
+
+        position = np.array([pose.position.x, pose.position.y, pose.position.z])
+        orientation = np.array([pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w])
+        if self.last_timestamp is None:
+            velocity = np.array([0.0, 0.0, 0.0])
+        else:
+            velocity = (position - self.last_position) / max(timestamp - self.last_timestamp, 1e-03)  # prevent divide by zero
+        state = np.concatenate([position, orientation, velocity])  # combined state vector
+        self.last_timestamp = timestamp
+        self.last_position = position
 
         # Compute reward / penalty and check if this episode is complete
         done = False
