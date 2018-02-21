@@ -26,6 +26,7 @@ class Hover(BaseTask):
 
         # Task-specific parameters
         self.max_duration = 5.0  # secs
+        self.target_position = np.array([0.0, 0.0, 10.0])
         self.target_z = 10.0  # target height (z position) to reach for successful takeoff
 
     def reset(self):
