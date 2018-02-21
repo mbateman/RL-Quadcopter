@@ -42,7 +42,7 @@ class Hover(BaseTask):
         #     )
         # # p = self.target_position + np.random.normal(0.5, 0.1, size=3)  # slight random position around the target
         p = self.target_position
-        p[2] = np.random.normal(0.5, 0.1)
+        # p[2] = np.random.normal(0.5, 0.1)
         return Pose(
                 position=Point(*p),
                 orientation=Quaternion(0.0, 0.0, 0.0, 1.0),
