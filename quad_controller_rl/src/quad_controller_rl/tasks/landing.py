@@ -33,7 +33,7 @@ class Landing(BaseTask):
         self.weight_orientation = 0.3
         self.target_velocity = np.array([0.0, 0.0, 0.0])  # target velocity (ideally should stay in place)
         self.weight_velocity = 0.2
-        # self.target_z = 10.0  # target height (z position) to reach for successful takeoff
+        self.target_z = 10.0  # target height (z position) to reach for successful takeoff
 
     def reset(self):
         # Nothing to reset; just return initial condition
@@ -57,17 +57,17 @@ class Landing(BaseTask):
 
     def update(self, timestamp, pose, angular_velocity, linear_acceleration):
         # Prepare state vector (pose only; ignore angular_velocity, linear_acceleration)
-        # state = np.array([
-        #         pose.position.x, pose.position.y, pose.position.z,
-        #         pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w])
+
         position = np.array([pose.position.x, pose.position.y, pose.position.z])
         orientation = np.array([pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w])
         if self.last_timestamp is None:
             velocity = np.array([0.0, 0.0, 0.0])
         else:
             velocity = (position - self.last_position) / max(timestamp - self.last_timestamp, 1e-03)  # prevent divide by zero
+        print("Hover(): velocity = {}".format(velocity))  # [debug]
+        # state = np.concatenate([position, orientation, velocity])  # combined state vector
+        state = np.concatenate([position, orientation])  # combined state vector
 
-        state = np.concatenate([position, orientation, velocity])  # combined state vector
         self.last_timestamp = timestamp
         self.last_position = position
 
@@ -81,17 +81,9 @@ class Landing(BaseTask):
         error_velocity = np.linalg.norm(
             self.target_velocity - state[7:10])  # Euclidean distance from target velocity vector
 
-        # reward = -min(abs(self.target_z - pose.position.z), 20.0)  # reward = zero for matching target z, -ve as you go farther, upto -20
         reward = -(self.weight_position * error_position +
                    self.weight_orientation * error_orientation +
                    self.weight_velocity * error_velocity)
-
-        # if pose.position.z >= self.target_z:  # agent has crossed the target height
-        #     reward += 10.0  # bonus reward
-        #     done = True
-        # elif timestamp > self.max_duration:  # agent has run out of time
-        #     reward -= 10.0  # extra penalty
-        #     done = True
 
         if error_position > self.max_error_position:
             reward -= 50.0  # extra penalty, agent strayed too far
@@ -99,6 +91,14 @@ class Landing(BaseTask):
         elif timestamp > self.max_duration:
             reward += 50.0  # extra reward, agent made it to the end
             done = True
+
+        # reward = -min(abs(self.target_z - pose.position.z), 20.0)  # reward = zero for matching target z, -ve as you go farther, upto -20
+        # if pose.position.z >= self.target_z:  # agent has crossed the target height
+        #     reward += 10.0  # bonus reward
+        #     done = True
+        # elif timestamp > self.max_duration:  # agent has run out of time
+        #     reward -= 10.0  # extra penalty
+        #     done = True
 
         # Take one RL step, passing in current state and reward, and obtain action
         # Note: The reward passed in here is the result of past action(s)
