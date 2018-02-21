@@ -62,12 +62,15 @@ class Hover(BaseTask):
         #         pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w])
         position = np.array([pose.position.x, pose.position.y, pose.position.z])
         orientation = np.array([pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w])
-        if self.last_timestamp is None:
-            velocity = np.array([0.0, 0.0, 0.0])
-        else:
-            velocity = (position - self.last_position) / max(timestamp - self.last_timestamp, 1e-03)  # prevent divide by zero
 
+        # if self.last_timestamp is None:
+        #     velocity = np.array([0.0, 0.0, 0.0])
+        # else:
+        #     velocity = (position - self.last_position) / max(timestamp - self.last_timestamp, 1e-03)  # prevent divide by zero
+
+        velocity = np.array([0.0, 0.0, 0.0])
         print("Hover(): velocity = {}".format(velocity))  # [debug]
+
         state = np.concatenate([position, orientation, velocity])  # combined state vector
         self.last_timestamp = timestamp
         self.last_position = position
