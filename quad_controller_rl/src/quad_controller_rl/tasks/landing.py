@@ -14,7 +14,7 @@ class Landing(BaseTask):
         self.observation_space = spaces.Box(
             np.array([- cube_size / 2, - cube_size / 2,       0.0, -1.0, -1.0, -1.0, -1.0]),
             np.array([  cube_size / 2,   cube_size / 2, cube_size,  1.0,  1.0,  1.0,  1.0]))
-        #print("Landing(): observation_space = {}".format(self.observation_space))  # [debug]
+        # print("Landing(): observation_space = {}".format(self.observation_space))  # [debug]
 
         # Action space: <force_x, .._y, .._z, torque_x, .._y, .._z>
         max_force = 25.0
@@ -22,7 +22,7 @@ class Landing(BaseTask):
         self.action_space = spaces.Box(
             np.array([-max_force, -max_force, -max_force, -max_torque, -max_torque, -max_torque]),
             np.array([ max_force,  max_force,  max_force,  max_torque,  max_torque,  max_torque]))
-        print("Landing(): action_space = {}".format(self.action_space))  # [debug]
+        # print("Landing(): action_space = {}".format(self.action_space))  # [debug]
 
         # Task-specific parameters
         self.max_duration = 5.0  # secs

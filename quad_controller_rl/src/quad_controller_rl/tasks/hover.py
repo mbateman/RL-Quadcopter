@@ -14,7 +14,7 @@ class Hover(BaseTask):
         self.observation_space = spaces.Box(
             np.array([- cube_size / 2, - cube_size / 2,       0.0, -1.0, -1.0, -1.0, -1.0]),
             np.array([  cube_size / 2,   cube_size / 2, cube_size,  1.0,  1.0,  1.0,  1.0]))
-        print("Hover(): observation_space = {}".format(self.observation_space))  # [debug]
+        # print("Hover(): observation_space = {}".format(self.observation_space))  # [debug]
 
         # Action space: <force_x, .._y, .._z, torque_x, .._y, .._z>
         max_force = 25.0
@@ -22,24 +22,24 @@ class Hover(BaseTask):
         self.action_space = spaces.Box(
             np.array([-max_force, -max_force, -max_force, -max_torque, -max_torque, -max_torque]),
             np.array([ max_force,  max_force,  max_force,  max_torque,  max_torque,  max_torque]))
-        print("Hover(): action_space = {}".format(self.action_space))  # [debug]
+        # print("Hover(): action_space = {}".format(self.action_space))  # [debug]
 
         # Task-specific parameters
         self.max_duration = 5.0  # secs
         self.max_error_position = 8.0  # distance units
-        self.target_position = np.array([0.0, 0.0, 10.0])  # target position to hover at
+        self.target_position = np.array([0.0, 0.0, 20.0])  # target position to hover at
         self.weight_position = 0.5
         self.target_orientation = np.array([0.0, 0.0, 0.0, 1.0])  # target orientation quaternion (upright)
         self.weight_orientation = 0.3
         self.target_velocity = np.array([0.0, 0.0, 0.0])  # target velocity (ideally should stay in place)
         self.weight_velocity = 0.2
-        # self.target_z = 10.0  # target height (z position) to reach for successful takeoff
+        self.target_z = 20.0  # target height (z position) to reach for successful takeoff
 
     def reset(self):
         # Nothing to reset; just return initial condition
         self.last_timestamp = None
         self.last_position = None
-        p = self.target_position + np.random.normal(0.5, 0.1, size=3)  # slight random position around the target
+        # p = self.target_position + np.random.normal(0.5, 0.1, size=3)  # slight random position around the target
         # return Pose(
         #     position=Point(*p),
         #     orientation=Quaternion(0.0, 0.0, 0.0, 1.0),
@@ -48,7 +48,7 @@ class Hover(BaseTask):
         #     angular=Vector3(0.0, 0.0, 0.0)
         # )
         return Pose(
-                position=Point(0.0, 0.0, np.random.normal(0.5, 0.1)),  # drop off from a slight random height
+                position=Point(0.0, 0.0, 20.0),  # drop off from a slight random height
                 orientation=Quaternion(0.0, 0.0, 0.0, 0.0),
             ), Twist(
                 linear=Vector3(0.0, 0.0, 0.0),
