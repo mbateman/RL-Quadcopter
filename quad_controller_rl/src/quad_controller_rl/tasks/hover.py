@@ -28,28 +28,13 @@ class Hover(BaseTask):
         self.max_duration = 30.0  # secs
         self.max_error_position = 8.0  # distance units
         self.target_position = np.array([0.0, 0.0, 10.0])  # target position to hover at
-        self.weight_position = 0.5
-        self.target_orientation = np.array([0.0, 0.0, 0.0, 1.0])  # target orientation quaternion (upright)
-        self.weight_orientation = 0.3
-        self.target_velocity = np.array([0.0, 0.0, 0.0])  # target velocity (ideally should stay in place)
-        self.weight_velocity = 0.2
-
         self.target_z = 10.0  # target height (z position) to reach for successful takeoff
 
     def reset(self):
-        # Nothing to reset; just return initial condition
         self.last_timestamp = None
         self.last_position = None
-        # return Pose(
-        #         position=Point(0.0, 0.0, np.random.normal(0.5, 0.1)),  # drop off from a slight random height
-        #         orientation=Quaternion(0.0, 0.0, 0.0, 0.0),
-        #     ), Twist(
-        #         linear=Vector3(0.0, 0.0, 0.0),
-        #         angular=Vector3(0.0, 0.0, 0.0)
-        #     )
+        # slight random position around the target
         p = self.target_position + np.random.normal(0.5, 0.1, size=3)  # slight random position around the target
-        # p = self.target_position
-        # p[2] = np.random.normal(0.5, 0.1)
         return Pose(
                 position=Point(*p),
                 orientation=Quaternion(0.0, 0.0, 0.0, 1.0),
@@ -60,10 +45,6 @@ class Hover(BaseTask):
 
     def update(self, timestamp, pose, angular_velocity, linear_acceleration):
         # Prepare state vector (pose only; ignore angular_velocity, linear_acceleration)
-        # state = np.array([
-        #         pose.position.x, pose.position.y, pose.position.z,
-        #         pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w])
-
         position = np.array([pose.position.x, pose.position.y, pose.position.z])
         orientation = np.array([pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w])
         if self.last_timestamp is None:
@@ -76,7 +57,6 @@ class Hover(BaseTask):
 
         # Compute reward / penalty and check if this episode is complete
         done, reward = self.updateReward(False, pose, timestamp)
-        # done, reward = self.updateRewardWithError(False, state, timestamp)
 
         # Take one RL step, passing in current state and reward, and obtain action
         # Note: The reward passed in here is the result of past action(s)
@@ -101,30 +81,6 @@ class Hover(BaseTask):
             done = True
         elif timestamp > self.max_duration:  # agent has run out of time
             reward -= 10.0  # extra penalty
-            done = True
-        print('updated reward', reward)
-        return done, reward
-
-    def updateRewardWithError(self, done, state, timestamp):
-        print('updating with state', state)
-        error_position = np.linalg.norm(
-            self.target_position - state[0:3]) # Euclidean distance from target position vector
-        error_orientation = np.linalg.norm(
-            self.target_orientation - state[3:7]) # Euclidean distance from target orientation quaternion (a better comparison may be needed)
-        error_velocity = np.linalg.norm(
-            self.target_velocity - state[7:10]) # Euclidean distance from target velocity vector
-
-        reward = -(self.weight_position * error_position +
-                   self.weight_orientation * error_orientation +
-                   self.weight_velocity * error_velocity)
-
-        print('initial reward', reward)
-
-        if error_position > self.max_error_position:
-            reward -= 50.0  # extra penalty, agent strayed too far
-            done = True
-        elif timestamp > self.max_duration:
-            reward += 50.0  # extra reward, agent made it to the end
             done = True
         print('updated reward', reward)
         return done, reward
