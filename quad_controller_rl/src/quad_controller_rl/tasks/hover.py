@@ -116,9 +116,9 @@ class Hover(BaseTask):
                    self.weight_velocity * error_velocity)
 
         if error_position > self.max_error_position:
-            reward -= 10.0  # extra penalty, agent strayed too far
+            reward -= 50.0  # extra penalty, agent strayed too far
             done = True
         elif timestamp > self.max_duration:
-            reward += 10.0  # extra reward, agent made it to the end
+            reward += 50.0  # extra reward, agent made it to the end
             done = True
         return done, reward
