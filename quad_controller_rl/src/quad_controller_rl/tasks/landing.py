@@ -76,8 +76,7 @@ class Landing(BaseTask):
 
         error_position = np.linalg.norm(
             self.target_position - state[0:3])  # Euclidean distance from target position vector
-        error_orientation = np.linalg.norm(self.target_orientation - state[
-                                                                     3:7])  # Euclidean distance from target orientation quaternion (a better comparison may be needed)
+        error_orientation = np.linalg.norm(self.target_orientation - state[                                                                   3:7])  # Euclidean distance from target orientation quaternion (a better comparison may be needed)
         error_velocity = np.linalg.norm(
             self.target_velocity - state[7:10])  # Euclidean distance from target velocity vector
 
