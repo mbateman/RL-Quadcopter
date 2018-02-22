@@ -28,7 +28,6 @@ class Hover(BaseTask):
         self.max_duration = 30.0  # secs
         self.max_error_position = 8.0  # distance units
         self.target_position = np.array([0.0, 0.0, 10.0])  # target position to hover at
-        self.target_z = 10.0  # target height (z position) to reach for successful takeoff
 
     def reset(self):
         self.last_timestamp = None
@@ -74,8 +73,8 @@ class Hover(BaseTask):
 
     def updateReward(self, done, pose, timestamp):
         # reward = zero for matching target z, -ve as you go farther, up to -20
-        reward = -min(abs(self.target_z - pose.position.z), 20.0)
-        if pose.position.z >= self.target_z:  # agent has crossed the target height
+        reward = -min(abs(self.target_position[2] - pose.position.z), 20.0)
+        if pose.position.z >= self.target_position[2]:  # agent has crossed the target height
             reward += 10.0  # bonus reward
             done = True
         elif timestamp > self.max_duration:  # agent has run out of time
