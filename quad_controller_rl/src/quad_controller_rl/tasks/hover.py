@@ -104,6 +104,7 @@ class Hover(BaseTask):
         return done, reward
 
     def updateRewardWithError(self, done, state, timestamp):
+        print('updating with state', state)
         error_position = np.linalg.norm(
             self.target_position - state[0:3]) # Euclidean distance from target position vector
         error_orientation = np.linalg.norm(
@@ -115,10 +116,13 @@ class Hover(BaseTask):
                    self.weight_orientation * error_orientation +
                    self.weight_velocity * error_velocity)
 
+        print('initial reward', reward)
+
         if error_position > self.max_error_position:
             reward -= 50.0  # extra penalty, agent strayed too far
             done = True
         elif timestamp > self.max_duration:
             reward += 50.0  # extra reward, agent made it to the end
             done = True
+        print('updated reward', reward)
         return done, reward
