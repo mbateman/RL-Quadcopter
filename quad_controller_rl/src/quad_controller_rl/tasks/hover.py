@@ -25,7 +25,7 @@ class Hover(BaseTask):
         #print("Hover(): action_space = {}".format(self.action_space))  # [debug]
 
         # Task-specific parameters
-        self.max_duration = 5.0  # secs
+        self.max_duration = 30.0  # secs
         self.max_error_position = 8.0  # distance units
         self.target_position = np.array([0.0, 0.0, 10.0])  # target position to hover at
         self.weight_position = 0.5
@@ -116,9 +116,9 @@ class Hover(BaseTask):
                    self.weight_velocity * error_velocity)
 
         if error_position > self.max_error_position:
-            reward -= 50.0  # extra penalty, agent strayed too far
+            reward -= 10.0  # extra penalty, agent strayed too far
             done = True
         elif timestamp > self.max_duration:
-            reward += 50.0  # extra reward, agent made it to the end
+            reward += 10.0  # extra reward, agent made it to the end
             done = True
         return done, reward
