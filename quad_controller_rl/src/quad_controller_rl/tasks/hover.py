@@ -75,12 +75,10 @@ class Hover(BaseTask):
     def updateReward(self, done, pose, timestamp):
         # reward = zero for matching target z, -ve as you go farther, up to -20
         reward = -min(abs(self.target_z - pose.position.z), 20.0)
-        print('initial reward', reward)
         if pose.position.z >= self.target_z:  # agent has crossed the target height
             reward += 10.0  # bonus reward
             done = True
         elif timestamp > self.max_duration:  # agent has run out of time
             reward -= 10.0  # extra penalty
             done = True
-        print('updated reward', reward)
         return done, reward
