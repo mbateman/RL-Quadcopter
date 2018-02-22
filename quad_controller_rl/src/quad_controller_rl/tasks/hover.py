@@ -121,3 +121,4 @@ class Hover(BaseTask):
         elif timestamp > self.max_duration:
             reward += 50.0  # extra reward, agent made it to the end
             done = True
+        return done, reward
