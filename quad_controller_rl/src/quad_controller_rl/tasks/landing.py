@@ -65,8 +65,8 @@ class Landing(BaseTask):
         else:
             velocity = (position - self.last_position) / max(timestamp - self.last_timestamp, 1e-03)  # prevent divide by zero
         print("Landing(): velocity = {}".format(velocity))  # [debug]
-        # state = np.concatenate([position, orientation, velocity])  # combined state vector
-        state = np.concatenate([position, orientation])  # combined state vector
+        state = np.concatenate([position, orientation, velocity])  # combined state vector
+        # state = np.concatenate([position, orientation])  # combined state vector
         self.last_timestamp = timestamp
         self.last_position = position
 
@@ -103,13 +103,9 @@ class Landing(BaseTask):
 
     def updateRewardWithError(self, done, state, timestamp):
         print('updating with state', state)
-        error_position = np.linalg.norm(
-            self.target_position - state[0:3])  # Euclidean distance from target position vector
-        error_orientation = np.linalg.norm(
-            self.target_orientation - state[
-                                      3:7])  # Euclidean distance from target orientation quaternion (a better comparison may be needed)
-        error_velocity = np.linalg.norm(
-            self.target_velocity - state[7:10])  # Euclidean distance from target velocity vector
+        error_position = np.linalg.norm(self.target_position - state[0:3])  # Euclidean distance from target position vector
+        error_orientation = np.linalg.norm(self.target_orientation - state[3:7])  # Euclidean distance from target orientation quaternion (a better comparison may be needed)
+        error_velocity = np.linalg.norm(self.target_velocity - state[7:10])  # Euclidean distance from target velocity vector
 
         reward = -(self.weight_position * error_position +
                    self.weight_orientation * error_orientation +
