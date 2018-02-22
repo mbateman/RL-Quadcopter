@@ -64,40 +64,15 @@ class Landing(BaseTask):
             velocity = np.array([0.0, 0.0, 0.0])
         else:
             velocity = (position - self.last_position) / max(timestamp - self.last_timestamp, 1e-03)  # prevent divide by zero
-        print("Hover(): velocity = {}".format(velocity))  # [debug]
+        print("Landing(): velocity = {}".format(velocity))  # [debug]
         # state = np.concatenate([position, orientation, velocity])  # combined state vector
         state = np.concatenate([position, orientation])  # combined state vector
-
         self.last_timestamp = timestamp
         self.last_position = position
 
         # Compute reward / penalty and check if this episode is complete
-        done = False
-
-        error_position = np.linalg.norm(
-            self.target_position - state[0:3])  # Euclidean distance from target position vector
-        error_orientation = np.linalg.norm(self.target_orientation - state[                                                                   3:7])  # Euclidean distance from target orientation quaternion (a better comparison may be needed)
-        error_velocity = np.linalg.norm(
-            self.target_velocity - state[7:10])  # Euclidean distance from target velocity vector
-
-        reward = -(self.weight_position * error_position +
-                   self.weight_orientation * error_orientation +
-                   self.weight_velocity * error_velocity)
-
-        if error_position > self.max_error_position:
-            reward -= 50.0  # extra penalty, agent strayed too far
-            done = True
-        elif timestamp > self.max_duration:
-            reward += 50.0  # extra reward, agent made it to the end
-            done = True
-
-        # reward = -min(abs(self.target_z - pose.position.z), 20.0)  # reward = zero for matching target z, -ve as you go farther, upto -20
-        # if pose.position.z >= self.target_z:  # agent has crossed the target height
-        #     reward += 10.0  # bonus reward
-        #     done = True
-        # elif timestamp > self.max_duration:  # agent has run out of time
-        #     reward -= 10.0  # extra penalty
-        #     done = True
+        # done, reward = self.updateReward(False, pose, timestamp)
+        done, reward = self.updateRewardWithError(False, state, timestamp)
 
         # Take one RL step, passing in current state and reward, and obtain action
         # Note: The reward passed in here is the result of past action(s)
@@ -112,3 +87,42 @@ class Landing(BaseTask):
                 ), done
         else:
             return Wrench(), done
+
+    def updateReward(self, done, pose, timestamp):
+        # reward = zero for matching target z, -ve as you go farther, up to -20
+        reward = -min(abs(self.target_z - pose.position.z), 20.0)
+        print('initial reward', reward)
+        if pose.position.z >= self.target_z:  # agent has crossed the target height
+            reward += 10.0  # bonus reward
+            done = True
+        elif timestamp > self.max_duration:  # agent has run out of time
+            reward -= 10.0  # extra penalty
+            done = True
+        print('updated reward', reward)
+        return done, reward
+
+    def updateRewardWithError(self, done, state, timestamp):
+        print('updating with state', state)
+        error_position = np.linalg.norm(
+            self.target_position - state[0:3])  # Euclidean distance from target position vector
+        error_orientation = np.linalg.norm(
+            self.target_orientation - state[
+                                      3:7])  # Euclidean distance from target orientation quaternion (a better comparison may be needed)
+        error_velocity = np.linalg.norm(
+            self.target_velocity - state[7:10])  # Euclidean distance from target velocity vector
+
+        reward = -(self.weight_position * error_position +
+                   self.weight_orientation * error_orientation +
+                   self.weight_velocity * error_velocity)
+
+        print('initial reward', reward)
+
+        if error_position > self.max_error_position:
+            reward -= 50.0  # extra penalty, agent strayed too far
+            done = True
+        elif timestamp > self.max_duration:
+            reward += 50.0  # extra reward, agent made it to the end
+            done = True
+        print('updated reward', reward)
+        return done, reward
+
