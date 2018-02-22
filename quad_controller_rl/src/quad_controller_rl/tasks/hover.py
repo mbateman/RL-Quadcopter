@@ -75,8 +75,8 @@ class Hover(BaseTask):
         self.last_position = position
 
         # Compute reward / penalty and check if this episode is complete
-        done, reward = self.updateReward(False, pose, timestamp)
-        # done, reward = self.updateRewardWithError(False, state, timestamp)
+        # done, reward = self.updateReward(False, pose, timestamp)
+        done, reward = self.updateRewardWithError(False, state, timestamp)
 
         # Take one RL step, passing in current state and reward, and obtain action
         # Note: The reward passed in here is the result of past action(s)
