@@ -84,11 +84,6 @@ class DDPG(BaseAgent):
         # Reduce state vector
         state = self.preprocess_state(state)
 
-        # Transform state vector
-        # state = (state - self.task.observation_space.low[0:3]) / (self.task.observation_space.high[0:3] - self.task.observation_space.low[0:3])  # scale to [0.0, 1.0]
-        # state = state.reshape(1, -1)  # convert to row vector
-        # print("normalized_state: {}".format(state))
-
         # Choose an action
         action = self.act(state)
 
