@@ -25,7 +25,7 @@ class Landing(BaseTask):
         # print("Landing(): action_space = {}".format(self.action_space))  # [debug]
 
         # Task-specific parameters
-        self.max_duration = 5.0  # secs
+        self.max_duration = 30.0  # secs
         self.max_error_position = 8.0  # distance units
         self.target_position = np.array([0.0, 0.0, 0.0])  # target position to hover at
         self.weight_position = 0.5
@@ -47,7 +47,7 @@ class Landing(BaseTask):
         #     angular=Vector3(0.0, 0.0, 0.0)
         # )
         return Pose(
-                position=Point(0.0, 0.0, np.random.normal(10.0, 0.5)),  # drop off from a slight random height
+                position=Point(0.0, 0.0, np.random.normal(20.0, 0.5)),  # drop off from a slight random height
                 orientation=Quaternion(0.0, 0.0, 0.0, 0.0),
             ), Twist(
                 linear=Vector3(0.0, 0.0, 0.0),
