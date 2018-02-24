@@ -38,21 +38,21 @@ class Landing(BaseTask):
     def reset(self):
         self.last_timestamp = None
         self.last_position = None
-        p = self.target_position + np.random.normal(0.5, 0.1, size=3)  # slight random position around the target
-        return Pose(
-            position=Point(*p),
-            orientation=Quaternion(0.0, 0.0, 0.0, 1.0),
-        ), Twist(
-            linear=Vector3(0.0, 0.0, 0.0),
-            angular=Vector3(0.0, 0.0, 0.0)
-        )
+        # p = self.target_position + np.random.normal(0.5, 0.1, size=3)  # slight random position around the target
         # return Pose(
-        #         position=Point(0.0, 0.0, np.random.normal(0.5, 0.1)),  # drop off from a slight random height
-        #         orientation=Quaternion(0.0, 0.0, 0.0, 0.0),
-        #     ), Twist(
-        #         linear=Vector3(0.0, 0.0, 0.0),
-        #         angular=Vector3(0.0, 0.0, 0.0)
-        #     )
+        #     position=Point(*p),
+        #     orientation=Quaternion(0.0, 0.0, 0.0, 1.0),
+        # ), Twist(
+        #     linear=Vector3(0.0, 0.0, 0.0),
+        #     angular=Vector3(0.0, 0.0, 0.0)
+        # )
+        return Pose(
+                position=Point(0.0, 0.0, np.random.normal(10.0, 0.5)),  # drop off from a slight random height
+                orientation=Quaternion(0.0, 0.0, 0.0, 0.0),
+            ), Twist(
+                linear=Vector3(0.0, 0.0, 0.0),
+                angular=Vector3(0.0, 0.0, 0.0)
+            )
 
     def update(self, timestamp, pose, angular_velocity, linear_acceleration):
         # Prepare state vector (pose only; ignore angular_velocity, linear_acceleration)
@@ -70,8 +70,8 @@ class Landing(BaseTask):
         self.last_position = position
 
         # Compute reward / penalty and check if this episode is complete
-        done, reward = self.updateReward(False, pose, timestamp)
-        # done, reward = self.updateRewardWithError(False, state, timestamp)
+        done, reward = self.compute_reward(False, pose, timestamp)
+        # done, reward = self.compute_reward_with_error(False, state, timestamp)
 
         # Take one RL step, passing in current state and reward, and obtain action
         # Note: The reward passed in here is the result of past action(s)
@@ -87,7 +87,7 @@ class Landing(BaseTask):
         else:
             return Wrench(), done
 
-    def updateReward(self, done, pose, timestamp):
+    def compute_reward(self, done, pose, timestamp):
         # reward = zero for matching target z, -ve as you go farther, up to -20
         reward = -min(abs(self.target_z - pose.position.z), 20.0)
         if pose.position.z >= self.target_z:  # agent has crossed the target height
@@ -98,7 +98,7 @@ class Landing(BaseTask):
             done = True
         return done, reward
 
-    def updateRewardWithError(self, done, state, timestamp):
+    def compute_reward_with_error(self, done, state, timestamp):
         error_position = np.linalg.norm(self.target_position - state[0:3])  # Euclidean distance from target position vector
         error_orientation = np.linalg.norm(self.target_orientation - state[3:7])  # Euclidean distance from target orientation quaternion (a better comparison may be needed)
         error_velocity = np.linalg.norm(self.target_velocity - state[7:10])  # Euclidean distance from target velocity vector
