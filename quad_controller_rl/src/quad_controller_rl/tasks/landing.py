@@ -25,7 +25,7 @@ class Landing(BaseTask):
         # print("Landing(): action_space = {}".format(self.action_space))  # [debug]
 
         # Task-specific parameters
-        self.max_duration = 30.0  # secs
+        self.max_duration = 20.0  # secs
         self.max_error_position = 8.0  # distance units
         self.target_position = np.array([0.0, 0.0, 0.0])  # target position to hover at
         self.weight_position = 0.5
@@ -33,6 +33,7 @@ class Landing(BaseTask):
         self.weight_orientation = 0.3
         self.target_velocity = np.array([0.0, 0.0, 0.0])  # target velocity (ideally should stay in place)
         self.weight_velocity = 0.2
+        self.target_position = np.array([0.0, 0.0, 10.0])  # target position to hover at
         self.target_z = 0.0  # target height (z position) to reach for successful landing
 
     def reset(self):
@@ -90,7 +91,7 @@ class Landing(BaseTask):
     def compute_reward(self, done, pose, timestamp):
         # reward = zero for matching target z, -ve as you go farther, up to -20
         reward = -min(abs(self.target_z - pose.position.z), 20.0)
-        if pose.position.z >= self.target_z:  # agent has crossed the target height
+        if pose.position.z <= self.target_z:  # agent has crossed the target height
             reward += 10.0  # bonus reward
             done = True
         elif timestamp > self.max_duration:  # agent has run out of time
