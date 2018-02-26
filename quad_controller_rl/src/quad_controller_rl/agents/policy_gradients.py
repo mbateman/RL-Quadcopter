@@ -16,6 +16,21 @@ class DDPG(BaseAgent):
 
     def __init__(self, task):
 
+        # Load/save parameters
+        self.load_weights = True  # try to load weights from previously saved models
+        self.save_weights_every = 10  # save weights every n episodes, None to disable
+        self.model_dir = util.get_param(
+            'out')  # you can use a separate subdirectory for each task and/or neural net architecture
+        self.model_name = "my-model"
+        self.model_ext = ".h5"
+        if self.load_weights or self.save_weights_every:
+            self.actor_filename = os.path.join(self.model_dir,
+                                               "{}_actor{}".format(self.model_name, self.model_ext))
+            self.critic_filename = os.path.join(self.model_dir,
+                                                "{}_critic{}".format(self.model_name, self.model_ext))
+            print("Actor filename :", self.actor_filename)  # [debug]
+            print("Critic filename:", self.critic_filename)  # [debug]
+
         # Initialize environment variables
         self.task = task
         self.state_size = 3  # position only
@@ -34,6 +49,20 @@ class DDPG(BaseAgent):
         # Critic (Value) Model
         self.critic_local = Critic(self.state_size, self.action_size)
         self.critic_target = Critic(self.state_size, self.action_size)
+
+        # Load pre-trained model weights, if available
+        if self.load_weights and os.path.isfile(self.actor_filename):
+            try:
+                self.actor_local.model.load_weights(self.actor_filename)
+                self.critic_local.model.load_weights(self.critic_filename)
+                print("Model weights loaded from file!")  # [debug]
+            except Exception as e:
+                print("Unable to load model weights from file!")
+                print("{}: {}".format(e.__class__.__name__, str(e)))
+
+        if self.save_weights_every:
+            print("Saving model weights", "every {} episodes".format(
+                self.save_weights_every) if self.save_weights_every else "disabled")  # [debug]
 
         # Initialize target model parameters with local model parameters
         self.critic_target.model.set_weights(self.critic_local.model.get_weights())
@@ -60,9 +89,11 @@ class DDPG(BaseAgent):
         print("Saving stats {} to {}".format(self.stats_columns, self.stats_filename))  # [debug]
 
         # Episode variables
+        self.episode = 0
         self.reset_episode_vars()
 
     def reset_episode_vars(self):
+        self.episode += 1
         self.last_state = None
         self.last_action = None
         self.total_reward = 0.0
@@ -135,8 +166,7 @@ class DDPG(BaseAgent):
         # Get predicted next-state actions and Q values from target models
         # Q_targets_next = critic_target(next_state, actor_target(next_state))
         actions_next = self.actor_target.model.predict_on_batch(next_states)
-        Q_targets_next = self.critic_target.model.predict_on_batch([
-            next_states, actions_next])
+        Q_targets_next = self.critic_target.model.predict_on_batch([next_states, actions_next])
 
         # Compute Q targets for current states and train critic model (local)
         Q_targets = rewards + self.gamma * Q_targets_next * (1 - dones)
@@ -163,5 +193,4 @@ class DDPG(BaseAgent):
     def write_stats(self, stats):
         """Write single episode stats to CSV file."""
         df_stats = pd.DataFrame([stats], columns=self.stats_columns)  # single-row dataframe
-        df_stats.to_csv(self.stats_filename, mode='a', index=False,
-                        header=not os.path.isfile(self.stats_filename))  # write header first time only
+        df_stats.to_csv(self.stats_filename, mode='a', index=False, header=not os.path.isfile(self.stats_filename))  # write header first time only
