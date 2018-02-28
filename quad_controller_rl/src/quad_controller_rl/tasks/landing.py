@@ -25,7 +25,7 @@ class Landing(BaseTask):
         # print("Landing(): action_space = {}".format(self.action_space))  # [debug]
 
         # Task-specific parameters
-        self.max_duration = 10.0  # secs
+        self.max_duration = 30.0  # secs
         self.max_error_position = 8.0  # distance units
         self.target_position = np.array([0.0, 0.0, 0.0])  # target position to hover at
         self.weight_position = 0.5
@@ -37,9 +37,10 @@ class Landing(BaseTask):
         self.target_z = 0.0  # target height (z position) to reach for successful landing
 
     def reset(self):
+        print('reset')
         self.last_timestamp = None
         self.last_position = None
-        p = self.target_position + np.random.normal(20.0, 0.5, size=3)  # slight random position around the target
+        p = self.target_position + np.random.normal(50.0, 0.5, size=3)  # slight random position around the target
         return Pose(
             position=Point(*p),
             orientation=Quaternion(0.0, 0.0, 0.0, 1.0),
@@ -47,17 +48,9 @@ class Landing(BaseTask):
             linear=Vector3(0.0, 0.0, 0.0),
             angular=Vector3(0.0, 0.0, 0.0)
         )
-        # return Pose(
-        #         position=Point(0.0, 0.0, np.random.normal(20.0, 0.5)),  # drop off from a slight random height
-        #         orientation=Quaternion(0.0, 0.0, 0.0, 0.0),
-        #     ), Twist(
-        #         linear=Vector3(0.0, 0.0, 0.0),
-        #         angular=Vector3(0.0, 0.0, 0.0)
-        #     )
 
     def update(self, timestamp, pose, angular_velocity, linear_acceleration):
         # Prepare state vector (pose only; ignore angular_velocity, linear_acceleration)
-
         position = np.array([pose.position.x, pose.position.y, pose.position.z])
         orientation = np.array([pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w])
         if self.last_timestamp is None:
@@ -66,12 +59,10 @@ class Landing(BaseTask):
             velocity = (position - self.last_position) / max(timestamp - self.last_timestamp, 1e-03)  # prevent divide by zero
         # print("Landing(): velocity = {}".format(velocity))  # [debug]
         state = np.concatenate([position, orientation, velocity])  # combined state vector
-        # state = np.concatenate([position, orientation])  # combined state vector
         self.last_timestamp = timestamp
         self.last_position = position
 
         # Compute reward / penalty and check if this episode is complete
-        # done, reward = self.compute_reward(False, pose, timestamp)
         done, reward = self.compute_reward_with_error(False, state, timestamp)
 
         # Take one RL step, passing in current state and reward, and obtain action
@@ -87,17 +78,6 @@ class Landing(BaseTask):
                 ), done
         else:
             return Wrench(), done
-
-    def compute_reward(self, done, pose, timestamp):
-        # reward = zero for matching target z, -ve as you go farther, up to -20
-        reward = -min(abs(self.target_z - pose.position.z), 20.0)
-        if pose.position.z <= self.target_z:  # agent has crossed the target height
-            reward += 10.0  # bonus reward
-            done = True
-        elif timestamp > self.max_duration:  # agent has run out of time
-            reward -= 10.0  # extra penalty
-            done = True
-        return done, reward
 
     def compute_reward_with_error(self, done, state, timestamp):
         error_position = np.linalg.norm(self.target_position - state[0:3])  # Euclidean distance from target position vector
