@@ -72,6 +72,7 @@ class Landing(BaseTask):
         action = self.agent.step(state, reward, done)  # note: action = <force; torque> vector
 
         reward -= math.pow(action[0], 2) * 0.1
+        print('reward', reward)
 
         # Convert to proper force command (a Wrench object) and return it
         if action is not None:
@@ -84,6 +85,7 @@ class Landing(BaseTask):
             return Wrench(), done
 
     def compute_reward(self, position, ):
+        done = False
         done = all(position <= self.target_position)
         reward = 0
         if done:
