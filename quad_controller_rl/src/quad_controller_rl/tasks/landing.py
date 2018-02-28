@@ -104,9 +104,9 @@ class Landing(BaseTask):
         elif timestamp > self.max_duration:
             reward += 50.0  # extra reward, agent made it to the end
             done = True
-        elif all(position == self.target_position):
-            reward += 50.0  # extra reward, agent made it to the end
-            done = True
-        # print('reward', reward)
+        # elif all(position <= self.target_position):
+        #     reward += 100.0  # extra reward, agent made it to the end
+        #     done = True
+        # # print('reward', reward)
         return done, reward
 
