@@ -71,9 +71,6 @@ class Landing(BaseTask):
         # Note: The reward passed in here is the result of past action(s)
         action = self.agent.step(state, reward, done)  # note: action = <force; torque> vector
 
-        reward -= math.pow(action[0], 2) * 0.1
-        print('reward', reward)
-
         # Convert to proper force command (a Wrench object) and return it
         if action is not None:
             action = np.clip(action.flatten(), self.action_space.low, self.action_space.high)  # flatten, clamp to action space limits
@@ -103,10 +100,13 @@ class Landing(BaseTask):
 
         if error_position > self.max_error_position:
             reward -= 50.0  # extra penalty, agent strayed too far
-            done = all(position <= self.target_position)
+            done = True
         elif timestamp > self.max_duration:
             reward += 50.0  # extra reward, agent made it to the end
             done = True
-        print('reward', reward)
+        elif all(position == self.target_position)
+            reward += 50.0  # extra reward, agent made it to the end
+            done = True
+        # print('reward', reward)
         return done, reward
 
