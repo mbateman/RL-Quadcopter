@@ -84,7 +84,7 @@ class Landing(BaseTask):
             return Wrench(), done
 
     def compute_reward(self, position, ):
-        done = bool(position <= self.target_position)
+        done = all(position <= self.target_position)
         reward = 0
         if done:
             reward = 100.0
