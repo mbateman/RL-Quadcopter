@@ -37,10 +37,10 @@ class Landing(BaseTask):
         self.target_z = 0.0  # target height (z position) to reach for successful landing
 
     def reset(self):
-        print('reset')
+        print('resetting')
         self.last_timestamp = None
-        self.last_position = np.array([0.0, 0.0, 50.0])
-        p = self.target_position + np.random.normal(1.0, 0.5, size=3)  # slight random position around the target
+        self.last_position = None
+        p = self.target_position + np.random.normal(50.0, 0.5, size=3)  # slight random position around the target
         return Pose(
             position=Point(*p),
             orientation=Quaternion(0.0, 0.0, 0.0, 1.0),
@@ -94,5 +94,6 @@ class Landing(BaseTask):
         elif timestamp > self.max_duration:
             reward += 50.0  # extra reward, agent made it to the end
             done = True
+        print('reward', reward)
         return done, reward
 
