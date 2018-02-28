@@ -40,7 +40,7 @@ class Landing(BaseTask):
         print('resetting')
         self.last_timestamp = None
         self.last_position = None
-        p = self.target_position + np.random.normal(50.0, 0.5, size=3)  # slight random position around the target
+        p = self.target_position + np.random.normal(1.0, 0.5, size=3)  # slight random position around the target
         return Pose(
             position=Point(*p),
             orientation=Quaternion(0.0, 0.0, 0.0, 1.0),
