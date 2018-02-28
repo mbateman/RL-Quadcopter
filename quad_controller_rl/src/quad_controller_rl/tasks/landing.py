@@ -64,8 +64,8 @@ class Landing(BaseTask):
         self.last_position = position
 
         # Compute reward / penalty and check if this episode is complete
-        # done, reward = self.compute_reward_with_error(False, state, timestamp)
-        done, reward = self.compute_reward(position)
+        done, reward = self.compute_reward_with_error(False, state, timestamp, position)
+        # done, reward = self.compute_reward(position)
 
         # Take one RL step, passing in current state and reward, and obtain action
         # Note: The reward passed in here is the result of past action(s)
@@ -84,7 +84,7 @@ class Landing(BaseTask):
         else:
             return Wrench(), done
 
-    def compute_reward(self, position, ):
+    def compute_reward(self, position):
         done = False
         done = all(position <= self.target_position)
         reward = 0
@@ -92,7 +92,7 @@ class Landing(BaseTask):
             reward = 100.0
         return done, reward
 
-    def compute_reward_with_error(self, done, state, timestamp):
+    def compute_reward_with_error(self, done, state, timestamp, position):
         error_position = np.linalg.norm(self.target_position - state[0:3])  # Euclidean distance from target position vector
         error_orientation = np.linalg.norm(self.target_orientation - state[3:7])  # Euclidean distance from target orientation quaternion (a better comparison may be needed)
         error_velocity = np.linalg.norm(self.target_velocity - state[7:10])  # Euclidean distance from target velocity vector
@@ -103,7 +103,7 @@ class Landing(BaseTask):
 
         if error_position > self.max_error_position:
             reward -= 50.0  # extra penalty, agent strayed too far
-            done = True
+            done = all(position <= self.target_position)
         elif timestamp > self.max_duration:
             reward += 50.0  # extra reward, agent made it to the end
             done = True
