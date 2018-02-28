@@ -1,6 +1,7 @@
 """Landing task."""
 
 import numpy as np
+import math
 from gym import spaces
 from geometry_msgs.msg import Vector3, Point, Quaternion, Pose, Twist, Wrench
 from quad_controller_rl.tasks.base_task import BaseTask
@@ -63,11 +64,14 @@ class Landing(BaseTask):
         self.last_position = position
 
         # Compute reward / penalty and check if this episode is complete
-        done, reward = self.compute_reward_with_error(False, state, timestamp)
+        # done, reward = self.compute_reward_with_error(False, state, timestamp)
+        done, reward = self.compute_reward(position)
 
         # Take one RL step, passing in current state and reward, and obtain action
         # Note: The reward passed in here is the result of past action(s)
         action = self.agent.step(state, reward, done)  # note: action = <force; torque> vector
+
+        reward -= math.pow(action[0], 2) * 0.1
 
         # Convert to proper force command (a Wrench object) and return it
         if action is not None:
@@ -78,6 +82,13 @@ class Landing(BaseTask):
                 ), done
         else:
             return Wrench(), done
+
+    def compute_reward(self, position, ):
+        done = bool(position <= self.target_position)
+        reward = 0
+        if done:
+            reward = 100.0
+        return done, reward
 
     def compute_reward_with_error(self, done, state, timestamp):
         error_position = np.linalg.norm(self.target_position - state[0:3])  # Euclidean distance from target position vector
