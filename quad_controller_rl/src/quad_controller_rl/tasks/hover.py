@@ -33,12 +33,12 @@ class Hover(BaseTask):
         self.last_timestamp = None
         self.last_position = None
         # slight random position around the target
-        p = self.target_position + np.random.normal(0.5, 0.1, size=3)
+        p = self.target_position + np.random.normal(10.0, 0.5, size=3)
         return Pose(
                 position=Point(*p),
-                orientation=Quaternion(0.0, 0.0, 0.0, 1.0),
+                orientation=Quaternion(0.0, 0.0, 0.0, 0.0),
             ), Twist(
-                linear=Vector3(0.0, 0.0, 0.0),
+                linear=Vector3(0.0, 0.0, 1.0),
                 angular=Vector3(0.0, 0.0, 0.0)
             )
         # return Pose(

@@ -26,7 +26,7 @@ class Landing(BaseTask):
         # print("Landing(): action_space = {}".format(self.action_space))  # [debug]
 
         # Task-specific parameters
-        self.max_duration = 30.0  # secs
+        self.max_duration = 5.0  # secs
         self.max_error_position = 8.0  # distance units
         self.target_position = np.array([0.0, 0.0, 0.0])  # target position to hover at
         self.weight_position = 0.5
@@ -41,10 +41,10 @@ class Landing(BaseTask):
         print('resetting')
         self.last_timestamp = None
         self.last_position = None
-        p = self.target_position + np.random.normal(1.0, 0.5, size=3)  # slight random position around the target
+        p = self.target_position + np.random.normal(10.0, 0.5, size=3)  # slight random position around the target
         return Pose(
             position=Point(*p),
-            orientation=Quaternion(0.0, 0.0, 0.0, 1.0),
+            orientation=Quaternion(0.0, 0.0, 0.0, 0.0),
         ), Twist(
             linear=Vector3(0.0, 0.0, 0.0),
             angular=Vector3(0.0, 0.0, 0.0)
@@ -64,9 +64,8 @@ class Landing(BaseTask):
         self.last_position = position
 
         # Compute reward / penalty and check if this episode is complete
-        done, reward = self.compute_reward_with_error(False, pose, state, timestamp, position)
-        # done, reward = self.compute_reward(position)
-        # done, reward = self.compute_reward(False, pose, timestamp)
+        # done, reward = self.compute_reward_with_error(False, pose, state, timestamp, position)
+        done, reward = self.compute_reward(pose, timestamp, linear_acceleration)
 
         # Take one RL step, passing in current state and reward, and obtain action
         # Note: The reward passed in here is the result of past action(s)
@@ -82,18 +81,14 @@ class Landing(BaseTask):
         else:
             return Wrench(), done
 
-    # def compute_reward(self, position):
-    #     done = False
-    #     done = all(position <= self.target_position)
-    #     reward = 0
-    #     if done:
-    #         reward = 100.0
-    #     return done, reward
-
-    def compute_reward(self, done, pose, timestamp):
-        # reward = zero for matching target z, -ve as you go farther, up to -20
-        reward = -min(abs(self.target_position[2] - pose.position.z), 20.0)
-        if pose.position.z == self.target_position[2]:  # agent has crossed the target height
+    def compute_reward(self, pose, timestamp, linear_acceleration):
+        # reward = -min(abs(self.target_position[2] - pose.position.z), 20.0)
+        done = False
+        if -2.0 < linear_acceleration.z < 0:
+            reward = 1
+        else:
+            reward = -abs(self.target_z - pose.position.z) - abs(linear_acceleration.z)
+        if pose.position.z <= self.target_position[2]:  # agent has crossed the target height
             reward += 10.0  # bonus reward
             done = True
         elif timestamp > self.max_duration:  # agent has run out of time
