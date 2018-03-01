@@ -76,8 +76,8 @@ class DDPG(BaseAgent):
         self.batch_size = 64
         self.memory = ReplayBuffer(self.buffer_size)
 
-        # Algorithm parameters
-        self.gamma = 0.99
+        # Algorithm parameters - discount and soft update of target paramenters
+        self.gamma = 0.5
         self.tau = 0.001
 
         # Save episode stats
@@ -119,10 +119,13 @@ class DDPG(BaseAgent):
         action = self.act(state)
 
         # Save experience / reward
-        if self.last_state is not None and self.last_action is not None:
-            self.memory.add(self.last_state, self.last_action, reward,
-                            state, done)
-            self.total_reward += reward
+        # if self.last_state is not None and self.last_action is not None:
+        #     self.memory.add(self.last_state, self.last_action, reward, state, done)
+        #     self.total_reward += reward
+
+        self.last_state = np.copy(state)
+        self.last_action = np.copy(action)
+        self.total_reward += reward
 
         # Learn, if enough samples are available in memory
         if len(self.memory) > self.batch_size:
@@ -164,13 +167,12 @@ class DDPG(BaseAgent):
         next_states = np.vstack([e.next_state for e in experiences if e is not None])
 
         # Get predicted next-state actions and Q values from target models
-        # Q_targets_next = critic_target(next_state, actor_target(next_state))
         actions_next = self.actor_target.model.predict_on_batch(next_states)
-        Q_targets_next = self.critic_target.model.predict_on_batch([next_states, actions_next])
+        q_targets_next = self.critic_target.model.predict_on_batch([next_states, actions_next])
 
         # Compute Q targets for current states and train critic model (local)
-        Q_targets = rewards + self.gamma * Q_targets_next * (1 - dones)
-        self.critic_loss = self.critic_local.model.train_on_batch(x=[states, actions], y=Q_targets)
+        q_targets = rewards + self.gamma * q_targets_next * (1 - dones)
+        self.critic_loss = self.critic_local.model.train_on_batch(x=[states, actions], y=q_targets)
 
         # Train actor model (local)
         action_gradients = np.reshape(self.critic_local.get_action_gradients(
