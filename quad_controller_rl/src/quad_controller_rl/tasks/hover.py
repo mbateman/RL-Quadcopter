@@ -25,7 +25,7 @@ class Hover(BaseTask):
         #print("Hover(): action_space = {}".format(self.action_space))  # [debug]
 
         # Task-specific parameters
-        self.max_duration = 30.0  # secs
+        self.max_duration = 5.0  # secs
         self.max_error_position = 8.0  # distance units
         self.target_position = np.array([0.0, 0.0, 10.0])  # target position to hover at
 
