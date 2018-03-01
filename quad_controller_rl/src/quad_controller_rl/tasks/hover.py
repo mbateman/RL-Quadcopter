@@ -33,21 +33,21 @@ class Hover(BaseTask):
         self.last_timestamp = None
         self.last_position = None
         # slight random position around the target
-        # p = self.target_position + np.random.normal(0.5, 0.1, size=3)
-        # return Pose(
-        #         position=Point(*p),
-        #         orientation=Quaternion(0.0, 0.0, 0.0, 1.0),
-        #     ), Twist(
-        #         linear=Vector3(0.0, 0.0, 0.0),
-        #         angular=Vector3(0.0, 0.0, 0.0)
-        #     )
+        p = self.target_position + np.random.normal(0.5, 0.1, size=3)
         return Pose(
-            position=Point(0.0, 0.0, np.random.normal(10.0, 0.1)),  # drop off from a slight random height
-            orientation=Quaternion(0.0, 0.0, 0.0, 0.0),
-        ), Twist(
-            linear=Vector3(0.0, 0.0, 1.0),  # A little linear acceleration to cope up with initial gravity pull
-            angular=Vector3(0.0, 0.0, 0.0)
-        )
+                position=Point(*p),
+                orientation=Quaternion(0.0, 0.0, 0.0, 1.0),
+            ), Twist(
+                linear=Vector3(0.0, 0.0, 0.0),
+                angular=Vector3(0.0, 0.0, 0.0)
+            )
+        # return Pose(
+        #     position=Point(0.0, 0.0, np.random.normal(10.0, 0.1)),  # drop off from a slight random height
+        #     orientation=Quaternion(0.0, 0.0, 0.0, 0.0),
+        # ), Twist(
+        #     linear=Vector3(0.0, 0.0, 1.0),  # A little linear acceleration to cope up with initial gravity pull
+        #     angular=Vector3(0.0, 0.0, 0.0)
+        # )
 
     def update(self, timestamp, pose, angular_velocity, linear_acceleration):
         # Prepare state vector (pose only; ignore angular_velocity, linear_acceleration)
