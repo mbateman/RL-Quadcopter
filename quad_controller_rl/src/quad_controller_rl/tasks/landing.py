@@ -64,8 +64,9 @@ class Landing(BaseTask):
         self.last_position = position
 
         # Compute reward / penalty and check if this episode is complete
-        done, reward = self.compute_reward_with_error(False, state, timestamp, position)
+        # done, reward = self.compute_reward_with_error(False, state, timestamp, position)
         # done, reward = self.compute_reward(position)
+        done, reward = self.compute_reward(False, pose, timestamp)
 
         # Take one RL step, passing in current state and reward, and obtain action
         # Note: The reward passed in here is the result of past action(s)
@@ -81,12 +82,23 @@ class Landing(BaseTask):
         else:
             return Wrench(), done
 
-    def compute_reward(self, position):
-        done = False
-        done = all(position <= self.target_position)
-        reward = 0
-        if done:
-            reward = 100.0
+    # def compute_reward(self, position):
+    #     done = False
+    #     done = all(position <= self.target_position)
+    #     reward = 0
+    #     if done:
+    #         reward = 100.0
+    #     return done, reward
+
+    def compute_reward(self, done, pose, timestamp):
+        # reward = zero for matching target z, -ve as you go farther, up to -20
+        reward = -min(abs(self.target_position[2] - pose.position.z), 20.0)
+        if pose.position.z == self.target_position[2]:  # agent has crossed the target height
+            reward += 10.0  # bonus reward
+            done = True
+        elif timestamp > self.max_duration:  # agent has run out of time
+            reward -= 10.0  # extra penalty
+            done = True
         return done, reward
 
     def compute_reward_with_error(self, done, state, timestamp, position):
