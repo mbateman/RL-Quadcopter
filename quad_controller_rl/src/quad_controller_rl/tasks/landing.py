@@ -111,11 +111,13 @@ class Landing(BaseTask):
                    self.weight_velocity * error_velocity)
 
         if pose.position.z == self.target_position[2]:  # agent has crossed the target height
-            reward += 1.0  # bonus reward
+            reward += 10.0  # bonus reward
             done = True
+            print('target position reached')
         elif error_position > self.max_error_position:
             reward -= 1.0  # extra penalty, agent strayed too far
             done = True
+            print('error position exceeded')
         # elif timestamp > self.max_duration:
         #     reward += 1.0  # extra reward, agent made it to the end
         #     done = True
