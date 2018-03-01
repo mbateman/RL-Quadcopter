@@ -34,7 +34,7 @@ class Landing(BaseTask):
         self.weight_orientation = 0.3
         self.target_velocity = np.array([0.0, 0.0, 0.0])  # target velocity (ideally should stay in place)
         self.weight_velocity = 0.2
-        self.target_position = np.array([0.0, 0.0, 0.0])  # target position to hover at
+        self.target_position = np.array([0.0, 0.0, 0.0])  # target position to land at
         self.target_z = 0.0  # target height (z position) to reach for successful landing
 
     def reset(self):
