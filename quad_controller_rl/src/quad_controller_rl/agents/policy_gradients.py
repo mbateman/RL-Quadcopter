@@ -77,7 +77,7 @@ class DDPG(BaseAgent):
         self.memory = ReplayBuffer(self.buffer_size)
 
         # Algorithm parameters - discount and soft update of target paramenters
-        self.gamma = 0.5
+        self.gamma = 0.99
         self.tau = 0.001
 
         # Save episode stats

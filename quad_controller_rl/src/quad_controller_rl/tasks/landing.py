@@ -64,7 +64,6 @@ class Landing(BaseTask):
         self.last_position = position
 
         # Compute reward / penalty and check if this episode is complete
-        # done, reward = self.compute_reward_with_error(False, pose, state, timestamp, position)
         done, reward = self.compute_reward(pose, timestamp, linear_acceleration)
 
         # Take one RL step, passing in current state and reward, and obtain action
@@ -82,7 +81,6 @@ class Landing(BaseTask):
             return Wrench(), done
 
     def compute_reward(self, pose, timestamp, linear_acceleration):
-        # reward = -min(abs(self.target_position[2] - pose.position.z), 20.0)
         done = False
         if -2.0 < linear_acceleration.z < 0:
             reward = 1
@@ -94,31 +92,5 @@ class Landing(BaseTask):
         elif timestamp > self.max_duration:  # agent has run out of time
             reward -= 10.0  # extra penalty
             done = True
-        return done, reward
-
-    def compute_reward_with_error(self, done, pose, state, timestamp, position):
-        error_position = np.linalg.norm(self.target_position - state[0:3])  # Euclidean distance from target position vector
-        error_orientation = np.linalg.norm(self.target_orientation - state[3:7])  # Euclidean distance from target orientation quaternion (a better comparison may be needed)
-        error_velocity = np.linalg.norm(self.target_velocity - state[7:10])  # Euclidean distance from target velocity vector
-
-        reward = -(self.weight_position * error_position +
-                   self.weight_orientation * error_orientation +
-                   self.weight_velocity * error_velocity)
-
-        if pose.position.z == self.target_position[2]:  # agent has crossed the target height
-            reward += 10.0  # bonus reward
-            done = True
-            print('target position reached')
-        elif error_position > self.max_error_position:
-            reward -= 1.0  # extra penalty, agent strayed too far
-            done = True
-            print('error position exceeded')
-        # elif timestamp > self.max_duration:
-        #     reward += 1.0  # extra reward, agent made it to the end
-        #     done = True
-        # elif all(position <= self.target_position):
-        #     reward += 100.0  # extra reward, agent made it to the end
-        #     done = True
-        # # print('reward', reward)
         return done, reward
 

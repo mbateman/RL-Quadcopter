@@ -62,7 +62,7 @@ class Hover(BaseTask):
         self.last_position = position
 
         # Compute reward / penalty and check if this episode is complete
-        done, reward = self.compute_reward_(pose, timestamp, linear_acceleration)
+        done, reward = self.compute_reward(pose, timestamp, linear_acceleration)
 
         # Take one RL step, passing in current state and reward, and obtain action
         # Note: The reward passed in here is the result of past action(s)
@@ -78,19 +78,7 @@ class Hover(BaseTask):
         else:
             return Wrench(), done
 
-    def compute_reward(self, pose, timestamp):
-        # reward = zero for matching target z, -ve as you go farther, up to -20
-        done = False
-        reward = -min(abs(self.target_position[2] - pose.position.z), 20.0)
-        if pose.position.z >= self.target_position[2]:  # agent has crossed the target height
-            reward += 10.0  # bonus reward
-            done = True
-        elif timestamp > self.max_duration:  # agent has run out of time
-            reward -= 10.0  # extra penalty
-            done = True
-        return done, reward
-
-    def compute_reward_(self, pose, timestamp, linear_acceleration):
+    def compute_reward(self, pose, timestamp, linear_acceleration):
         done = False
         cur_pos = np.array([pose.position.x, pose.position.y, pose.position.z])
         dist = np.linalg.norm(cur_pos - self.target_position)
