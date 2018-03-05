@@ -88,6 +88,6 @@ class Hover(BaseTask):
             reward = -norm - abs(linear_acceleration.z)  # penalize if the boundary is crossed
 
         if timestamp > self.max_duration:  # agent has run out of time
-            reward -= 10.0  # extra penalty 
+            reward -= 10.0  # extra penalty
             done = True
         return done, reward

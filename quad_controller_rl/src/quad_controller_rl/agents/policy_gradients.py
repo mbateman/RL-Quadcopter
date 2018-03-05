@@ -81,8 +81,11 @@ class DDPG(BaseAgent):
         self.tau = 0.001
 
         # Save episode stats
+        out = util.get_param('out')
+        if not os.path.exists(out):
+            os.makedirs(out)
         self.stats_filename = os.path.join(
-            util.get_param('out'),
+            out,
             "stats_{}.csv".format(util.get_timestamp()))  # path to CSV file
         self.stats_columns = ['episode', 'total_reward']  # specify columns to save
         self.episode_num = 1
