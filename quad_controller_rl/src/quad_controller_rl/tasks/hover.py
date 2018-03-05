@@ -80,15 +80,14 @@ class Hover(BaseTask):
 
     def compute_reward(self, pose, timestamp, linear_acceleration):
         done = False
-        cur_pos = np.array([pose.position.x, pose.position.y, pose.position.z])
-        dist = np.linalg.norm(cur_pos - self.target_position)
-
-        if dist <= 3.0:  # agent has to hover around a boundary of 3 points
-            reward = 10.0  # reward for each time step the agent hover there
+        current_position = np.array([pose.position.x, pose.position.y, pose.position.z])
+        norm = np.linalg.norm(current_position - self.target_position)
+        if norm <= 3.0:
+            reward = 10.0  # for each time step that is within this norm
         else:
-            reward = -dist - abs(linear_acceleration.z)  # penalize if the agent move beyond the fixed boundary
+            reward = -norm - abs(linear_acceleration.z)  # penalize if the boundary is crossed
 
         if timestamp > self.max_duration:  # agent has run out of time
-            reward -= 10.0  # extra penalty
+            reward -= 10.0  # extra penalty 
             done = True
         return done, reward
