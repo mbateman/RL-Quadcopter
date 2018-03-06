@@ -35,17 +35,15 @@ class Actor:
         net = layers.Dense(units=32, activation='relu', kernel_initializer='glorot_uniform', kernel_regularizer=l2(l2_lambda))(states)
         net = layers.Dense(units=64, activation='relu', kernel_initializer='glorot_uniform', kernel_regularizer=l2(l2_lambda))(net)
         net = layers.Dense(units=32, activation='relu', kernel_initializer='glorot_uniform', kernel_regularizer=l2(l2_lambda))(net)
-        net = layers.BatchNormalization()(net)
+        # net = layers.BatchNormalization()(net)
 
         # Try different layer sizes, activations, add batch norm, regularizers, etc.
 
         # Add final output layer with sigmoid activation
-        raw_actions = layers.Dense(units=self.action_size, activation='sigmoid',
-            name='raw_actions')(net)
+        raw_actions = layers.Dense(units=self.action_size, activation='sigmoid', name='raw_actions')(net)
 
         # Scale [0, 1] output for each action dimension to proper range
-        actions = layers.Lambda(lambda x: (x * self.action_range) + self.action_low,
-        name='actions')(raw_actions)
+        actions = layers.Lambda(lambda x: (x * self.action_range) + self.action_low, name='actions')(raw_actions)
 
         # Create Keras model
         self.model = models.Model(inputs=states, outputs=actions)

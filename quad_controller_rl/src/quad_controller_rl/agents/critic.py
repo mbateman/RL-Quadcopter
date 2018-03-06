@@ -36,7 +36,7 @@ class Critic:
         # Add hidden layer(s) for action pathway
         net_actions = layers.Dense(units=32, activation='relu', kernel_initializer='glorot_uniform', kernel_regularizer=l2(l2_lambda))(actions)
         net_actions = layers.Dense(units=64, activation='relu', kernel_initializer='glorot_uniform', kernel_regularizer=l2(l2_lambda))(net_actions)
-        net_actions = layers.BatchNormalization()(net_actions)
+        # net_actions = layers.BatchNormalization()(net_actions)
 
         # Try different layer sizes, activations, add batch norm, regularizers, etc.
 
