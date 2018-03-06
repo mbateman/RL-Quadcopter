@@ -130,12 +130,12 @@ class DDPG(BaseAgent):
         self.last_action = np.copy(action)
         self.total_reward += reward
 
-        # Learn, if enough samples are available in memory
-        if len(self.memory) > self.batch_size:
-            experiences = self.memory.sample(self.batch_size)
-            self.learn(experiences)
 
         if done:
+            # Learn, if enough samples are available in memory
+            if len(self.memory) > self.batch_size:
+                experiences = self.memory.sample(self.batch_size)
+                self.learn(experiences)
             # Write episode stats
             self.write_stats([self.episode_num, self.total_reward])
             self.episode_num += 1
