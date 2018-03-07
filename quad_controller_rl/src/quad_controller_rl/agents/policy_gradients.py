@@ -133,9 +133,9 @@ class DDPG(BaseAgent):
         # self.total_reward += reward
 
         # [debug]
-        if self.count % 30 == 0:
-            print('step(): z={:2.2f} reward:{:2.2f}, done:{}'.format(state[2], reward, done))
-            print('total_reward:', self.total_reward)
+        # if self.count % 30 == 0:
+        #     print('step(): z={:2.2f} reward:{:2.2f}, done:{}'.format(state[2], reward, done))
+        #     print('total_reward:', self.total_reward)
 
         # Learn, if enough samples are available in memory
         if len(self.memory) > self.batch_size:
