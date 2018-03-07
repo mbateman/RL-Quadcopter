@@ -33,7 +33,7 @@ class DDPG(BaseAgent):
 
         # Initialize environment variables
         self.task = task
-        self.state_size = 3  # position only
+        self.state_size = 6  # position only
         self.state_range = self.task.observation_space.high - self.task.observation_space.low
         self.action_size = 3  # state only
         self.action_range = self.task.action_space.high - self.task.action_space.low
@@ -96,6 +96,7 @@ class DDPG(BaseAgent):
         self.reset_episode_vars()
 
     def reset_episode_vars(self):
+        self.count = 0
         self.episode += 1
         self.last_state = None
         self.last_action = None
@@ -122,20 +123,26 @@ class DDPG(BaseAgent):
         action = self.act(state)
 
         # Save experience / reward
-        # if self.last_state is not None and self.last_action is not None:
-        #     self.memory.add(self.last_state, self.last_action, reward, state, done)
-        #     self.total_reward += reward
+        if self.last_state is not None and self.last_action is not None:
+            self.memory.add(self.last_state, self.last_action, reward, state, done)
+            self.total_reward += reward
+            self.count += 1
 
-        self.last_state = np.copy(state)
-        self.last_action = np.copy(action)
-        self.total_reward += reward
+        # self.last_state = np.copy(state)
+        # self.last_action = np.copy(action)
+        # self.total_reward += reward
 
+        # [debug]
+        if self.count % 30 == 0:
+            print('step(): z={:2.2f} reward:{:2.2f}, done:{}'.format(state[2], reward, done))
+            print('total_reward:', self.total_reward)
+
+        # Learn, if enough samples are available in memory
+        if len(self.memory) > self.batch_size:
+            experiences = self.memory.sample(self.batch_size)
+            self.learn(experiences)
 
         if done:
-            # Learn, if enough samples are available in memory
-            if len(self.memory) > self.batch_size:
-                experiences = self.memory.sample(self.batch_size)
-                self.learn(experiences)
             # Write episode stats
             self.write_stats([self.episode_num, self.total_reward])
             self.episode_num += 1

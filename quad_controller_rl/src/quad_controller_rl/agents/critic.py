@@ -51,17 +51,17 @@ class Critic:
         # Add more layers to the combined network if needed
 
         # Add final output layer to produce action values (Q values)
-        Q_values = layers.Dense(units=1, name='q_values')(net)
+        q_values = layers.Dense(units=1, name='q_values')(net)
 
         # Create Keras model
-        self.model = models.Model(inputs=[states, actions], outputs=Q_values)
+        self.model = models.Model(inputs=[states, actions], outputs=q_values)
 
         # Define optimizer and compile model for training with built-in loss function
         optimizer = optimizers.Adam()
         self.model.compile(optimizer=optimizer, loss='mse')
 
         # Compute action gradients (derivative of Q values w.r.t. actions)
-        action_gradients = K.gradients(Q_values, actions)
+        action_gradients = K.gradients(q_values, actions)
 
         # Define an additional function to fetch action gradients (to be used
         # by an actor model)
