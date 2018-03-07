@@ -33,7 +33,7 @@ class DDPG(BaseAgent):
 
         # Initialize environment variables
         self.task = task
-        self.state_size = 6  # position only
+        self.state_size = 3  # position only
         self.state_range = self.task.observation_space.high - self.task.observation_space.low
         self.action_size = 3  # state only
         self.action_range = self.task.action_space.high - self.task.action_space.low
