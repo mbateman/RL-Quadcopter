@@ -148,13 +148,9 @@ class DDPG(BaseAgent):
             self.episode_num += 1
 
             # actor_loss = self.actor_loss[0] if isinstance(self.actor_loss, list) else self.actor_loss
-            if isinstance(self.actor_loss, list):
-                actor_loss = self.actor_loss[0]
-            else:
-                actor_loss = self.actor_loss
 
             print("Total reward: {0:.4f}... Actor loss: {1:.4f}... Critic loss: {2:.4f}...".format(
-                self.total_reward, actor_loss, self.critic_loss))
+                self.total_reward, self.actor_loss, self.critic_loss))
             self.reset_episode_vars()
 
         self.last_state = state
