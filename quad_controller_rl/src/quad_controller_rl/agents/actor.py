@@ -35,10 +35,6 @@ class Actor:
         net = layers.Dense(units=32, activation='relu')(states)
         net = layers.Dense(units=64, activation='relu')(net)
         net = layers.Dense(units=32, activation='relu')(net)
-        # net = layers.Dense(units=32, activation='relu', kernel_initializer='glorot_uniform', kernel_regularizer=l2(l2_lambda))(states)
-        # net = layers.Dense(units=64, activation='relu', kernel_initializer='glorot_uniform', kernel_regularizer=l2(l2_lambda))(net)
-        # net = layers.Dense(units=32, activation='relu', kernel_initializer='glorot_uniform', kernel_regularizer=l2(l2_lambda))(net)
-        # net = layers.BatchNormalization()(net)
 
         # Try different layer sizes, activations, add batch norm, regularizers, etc.
 

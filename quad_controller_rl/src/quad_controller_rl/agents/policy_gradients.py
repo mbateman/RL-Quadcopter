@@ -17,6 +17,7 @@ class DDPG(BaseAgent):
     def __init__(self, task):
 
         # Load/save parameters
+        print('policy gradients init')
         self.load_weights = True  # try to load weights from previously saved models
         self.save_weights_every = 10  # save weights every n episodes, None to disable
         self.model_dir = util.get_param(
